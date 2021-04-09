@@ -92,7 +92,7 @@ def assignment2():
             fout.write(f"{rms:0.6f},{par:0.6f},{zcr:0.6f},{mad:0.6f},{label}\n")
         pylab.plot(music_features[:,2], music_features[:,1])
         pylab.plot(speech_features[:,2], speech_features[:,1])
-        pylab.show()
+        # pylab.show()
 
 
 if __name__ == "__main__":
