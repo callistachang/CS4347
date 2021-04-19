@@ -1,11 +1,14 @@
 import numpy as np
 import scipy.io.wavfile
 import time
-import pylab
+from tqdm import tqdm
 
+###############
+# Features
+###############
 def calculate_rms(arr):
     """Calculates root-mean-squared.
-    
+
     A unique way to characterize the average of continuous
     varying signals such as audio.
     This makes sense because signals cross negative fairly often.
@@ -13,13 +16,15 @@ def calculate_rms(arr):
     """
     return np.sqrt(np.mean(np.square(arr)))
 
+
 def calculate_par(arr):
     """Calculates peak-to-average-ratio.
-    
-    Quite literally is the ratio from the highest signal peak in the array 
+
+    Quite literally is the ratio from the highest signal peak in the array
     to the average of the array.
     """
     return np.max(np.abs(arr)) / calculate_rms(arr)
+
 
 def calculate_zcr(arr):
     """Calculates zero crossings.
@@ -32,40 +37,57 @@ def calculate_zcr(arr):
     arr_binary = np.where(arr_multiplied < 0, 1, 0)
     return np.mean(arr_binary)
 
-def calculate_mad(arr):
+
+def calculate_median_ad(arr):
     """Calculates median absolute deviation.
-    
+
     A robust measure of the variability of a univariate sample of
     quanitative data; a measure of statistical disperson (like std dev).
-    It is robust in the sense that it is more resilient to utliers than std dev. 
+    It is robust in the sense that it is more resilient to utliers than std dev.
     """
     return np.median(np.abs(arr - np.median(arr)))
 
-def read_ground_truth_file():
+
+def calculate_mean_ad(arr):
+    return np.mean(np.abs(arr - np.mean(arr)))
+
+
+###############
+# Utils
+###############
+def _read_ground_truth_file():
     """
     Dataset contains 64 music & speech 30s files stored as 16-bit signed integers, 22050 Hz.
     lines = [[filename, music/speech], ..., [filename, music/speech]]
     """
     with open("./music_speech.mf", "r") as fin:
-        music_speech_data = [line.strip().split('\t') for line in fin.readlines()]
-        return music_speech_data
+        music_speech_data = [line.strip().split("\t") for line in fin.readlines()]
+    return music_speech_data
 
+
+def _read_audio_file(fpath):
+    _, audio_array = scipy.io.wavfile.read(fpath)
+    return audio_array / 32758
+
+
+###############
+# Main
+###############
 def assignment1():
-    music_speech_data = read_ground_truth_file()
+    music_speech_data = _read_ground_truth_file()
     with open("results.csv", "w") as fout:
-        for filename, label in music_speech_data:
-            sample_rate, audio_array = scipy.io.wavfile.read(filename)
-            # convert data to floats
-            audio_array = audio_array / 32768
+        for fpath, label in music_speech_data:
+            audio_array = _read_audio_file(fpath)
             rms = calculate_rms(audio_array)
             par = calculate_par(audio_array)
             zcr = calculate_zcr(audio_array)
-            mad = calculate_mad(audio_array)
+            mad = calculate_median_ad(audio_array)
             fout.write(f"{filename},{rms:0.6f},{par:0.6f},{zcr:0.6f},{mad:0.6f}\n")
 
+
 def assignment2():
-    music_speech_data = read_ground_truth_file()
-    with open("results.arff", "w") as fout:
+    music_speech_data = _read_ground_truth_file()
+    with open("assignment2.arff", "w") as fout:
         fout.write("@RELATION music_speech\n")
         fout.write("@ATTRIBUTE RMS NUMERIC\n")
         fout.write("@ATTRIBUTE PAR NUMERIC\n")
@@ -77,28 +99,69 @@ def assignment2():
 
         music_features = np.zeros((len(music_speech_data), 4))
         speech_features = np.zeros((len(music_speech_data), 4))
-        for i, (filename, label) in enumerate(music_speech_data):
-            sample_rate, audio_array = scipy.io.wavfile.read(filename)
-            audio_array = audio_array / 32768
+        for fpath, label in music_speech_data:
+            audio_array = _read_audio_file(fpath)
             rms = calculate_rms(audio_array)
             par = calculate_par(audio_array)
             zcr = calculate_zcr(audio_array)
-            mad = calculate_mad(audio_array)
-            features = [rms, par, zcr, mad]
-            if label == "music":
-                music_features[i] = features
-            elif label == "speech":
-                speech_features[i] = features
+            mad = calculate_median_ad(audio_array)
+            features = np.array([rms, par, zcr, mad])
             fout.write(f"{rms:0.6f},{par:0.6f},{zcr:0.6f},{mad:0.6f},{label}\n")
-        pylab.plot(music_features[:,2], music_features[:,1])
-        pylab.plot(speech_features[:,2], speech_features[:,1])
-        # pylab.show()
+        # I'm too lazy to plot the plots
+
+
+def assignment3():
+    music_speech_data = _read_ground_truth_file()
+
+    with open("assignment3.arff", "w") as fout:
+        fout.write("@RELATION music_speech\n")
+        fout.write("@ATTRIBUTE RMS_MEAN NUMERIC\n")
+        fout.write("@ATTRIBUTE PAR_MEAN NUMERIC\n")
+        fout.write("@ATTRIBUTE ZCR_MEAN NUMERIC\n")
+        fout.write("@ATTRIBUTE MAD_MEAN NUMERIC\n")
+        fout.write("@ATTRIBUTE MEAN_AD_MEAN NUMERIC\n")
+        fout.write("@ATTRIBUTE RMS_STD NUMERIC\n")
+        fout.write("@ATTRIBUTE PAR_STD NUMERIC\n")
+        fout.write("@ATTRIBUTE ZCR_STD NUMERIC\n")
+        fout.write("@ATTRIBUTE MAD_STD NUMERIC\n")
+        fout.write("@ATTRIBUTE MEAN_AD_STD NUMERIC\n")
+        fout.write("@ATTRIBUTE class {music,speech}\n")
+        fout.write("\n")
+        fout.write("@DATA\n")
+
+        for fpath, label in tqdm(music_speech_data):
+            audio_array = _read_audio_file(fpath)
+            buffer_features = []
+            # split data into buffers of length 1024 with 50% overlap (hopsize of 512)
+            # only include complete buffers. if buffer length < 1024, omit it
+            # should result in a (1920, 5) matrix per wav file
+            for i in range(1024, len(audio_array), 512):
+                buffer = audio_array[i - 1024 : i]
+                rms = calculate_rms(buffer)
+                par = calculate_par(buffer)
+                zcr = calculate_zcr(buffer)
+                median_ad = calculate_median_ad(buffer)
+                mean_ad = calculate_mean_ad(buffer)
+                buffer_features.append([rms, par, zcr, median_ad, mean_ad])
+            buffer_features = np.array(buffer_features)
+            rms_mean, par_mean, zcr_mean, median_ad_mean, mean_ad_mean = np.mean(
+                buffer_features, axis=0
+            ).T
+            rms_std, par_std, zcr_std, median_ad_std, mean_ad_std = np.std(
+                buffer_features, axis=0
+            ).T
+            fout.write(
+                f"{rms_mean:0.6f},{par_mean:0.6f},{zcr_mean:0.6f},{median_ad_mean:0.6f},{mean_ad_mean:0.6f},{rms_std:0.6f},{par_std:0.6f},{zcr_std:0.6f},{median_ad_std:0.6f},{mean_ad_std:0.6f},{label}\n"
+            )
 
 
 if __name__ == "__main__":
+    # start_time = time.time()
+    # assignment1()
+    # print(f"Time taken for Assignment 1: {time.time() - start_time:0.2f}")
+    # start_time = time.time()
+    # assignment2()
+    # print(f"Time taken for Assignment 2: {time.time() - start_time:0.2f}")
     start_time = time.time()
-    assignment1()
-    print(f"Time taken for Assignment 1: {time.time() - start_time:0.2f}")
-    start_time = time.time()
-    assignment2()
-    print(f"Time taken for Assignment 2: {time.time() - start_time:0.2f}")
+    assignment3()
+    print(f"Time taken for Assignment 3: {time.time() - start_time:0.2f}")
