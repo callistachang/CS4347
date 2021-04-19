@@ -1,24 +1,28 @@
-from utils import *
+from utils import _read_ground_truth_file, _read_audio_file, calculate_rms, calculate_par, calculate_zcr, calculate_median_ad, calculate_mean_ad
+import time 
+import numpy as np
+from tqdm import tqdm
 
+header = """@RELATION music_speech
+@ATTRIBUTE RMS_MEAN NUMERIC
+@ATTRIBUTE ZCR_MEAN NUMERIC
+@ATTRIBUTE MAD_MEAN NUMERIC
+@ATTRIBUTE MEAN_AD_MEAN NUMERIC
+@ATTRIBUTE RMS_STD NUMERIC
+@ATTRIBUTE PAR_STD NUMERIC
+@ATTRIBUTE ZCR_STD NUMERIC
+@ATTRIBUTE MAD_STD NUMERIC
+@ATTRIBUTE MEAN_AD_STD NUMERIC
+@ATTRIBUTE class {music,speech}
+
+@DATA
+"""
 
 def assignment3():
     music_speech_data = _read_ground_truth_file()
 
-    with open("assignment3.arff", "w") as fout:
-        fout.write("@RELATION music_speech\n")
-        fout.write("@ATTRIBUTE RMS_MEAN NUMERIC\n")
-        fout.write("@ATTRIBUTE PAR_MEAN NUMERIC\n")
-        fout.write("@ATTRIBUTE ZCR_MEAN NUMERIC\n")
-        fout.write("@ATTRIBUTE MAD_MEAN NUMERIC\n")
-        fout.write("@ATTRIBUTE MEAN_AD_MEAN NUMERIC\n")
-        fout.write("@ATTRIBUTE RMS_STD NUMERIC\n")
-        fout.write("@ATTRIBUTE PAR_STD NUMERIC\n")
-        fout.write("@ATTRIBUTE ZCR_STD NUMERIC\n")
-        fout.write("@ATTRIBUTE MAD_STD NUMERIC\n")
-        fout.write("@ATTRIBUTE MEAN_AD_STD NUMERIC\n")
-        fout.write("@ATTRIBUTE class {music,speech}\n")
-        fout.write("\n")
-        fout.write("@DATA\n")
+    with open("out/assignment3.arff", "w") as fout:
+        fout.write(header)
 
         for fpath, label in tqdm(music_speech_data):
             audio_array = _read_audio_file(fpath)

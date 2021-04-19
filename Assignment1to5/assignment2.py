@@ -1,17 +1,21 @@
-from utils import *
+from utils import _read_ground_truth_file, _read_audio_file, calculate_rms, calculate_par, calculate_zcr, calculate_median_ad 
+import time
+import numpy as np
 
+header = """@RELATION music_speech
+@ATTRIBUTE RMS NUMERIC
+@ATTRIBUTE PAR NUMERIC
+@ATTRIBUTE ZCR NUMERIC
+@ATTRIBUTE MAD NUMERIC
+@ATTRIBUTE class {music,speech}
+
+@DATA
+"""
 
 def assignment2():
     music_speech_data = _read_ground_truth_file()
-    with open("assignment2.arff", "w") as fout:
-        fout.write("@RELATION music_speech\n")
-        fout.write("@ATTRIBUTE RMS NUMERIC\n")
-        fout.write("@ATTRIBUTE PAR NUMERIC\n")
-        fout.write("@ATTRIBUTE ZCR NUMERIC\n")
-        fout.write("@ATTRIBUTE MAD NUMERIC\n")
-        fout.write("@ATTRIBUTE class {music,speech}\n")
-        fout.write("\n")
-        fout.write("@DATA\n")
+    with open("out/assignment2.arff", "w") as fout:
+        fout.write(header)
 
         music_features = np.zeros((len(music_speech_data), 4))
         speech_features = np.zeros((len(music_speech_data), 4))
