@@ -1,5 +1,7 @@
 import numpy as np
 import scipy.io.wavfile
+import scipy.signal.windows
+import scipy.fftpack
 import time
 from tqdm import tqdm
 
@@ -7,18 +9,18 @@ from tqdm import tqdm
 # Features
 ###############
 def calculate_rms(arr):
-    """Calculates root-mean-squared.
+    """Calculates root-mean-squared of an audio array.
 
     A unique way to characterize the average of continuous
     varying signals such as audio.
     This makes sense because signals cross negative fairly often.
     E.g. It's not very meaningful to say that the average of a sine wave is 0.
     """
-    return np.sqrt(np.mean(np.square(arr)))
+    return np.sqrt(np.mean(arr * 2))
 
 
 def calculate_par(arr):
-    """Calculates peak-to-average-ratio.
+    """Calculates peak-to-average-ratio of an audio array.
 
     Quite literally is the ratio from the highest signal peak in the array
     to the average of the array.
@@ -27,7 +29,7 @@ def calculate_par(arr):
 
 
 def calculate_zcr(arr):
-    """Calculates zero crossings.
+    """Calculates zero crossings of an audio array.
 
     If element 1 is negative and element 2 is positive (or vice versa),
     when they are multiplied together, they will give a negative number.
@@ -39,7 +41,7 @@ def calculate_zcr(arr):
 
 
 def calculate_median_ad(arr):
-    """Calculates median absolute deviation.
+    """Calculates median absolute deviation of an audio array.
 
     A robust measure of the variability of a univariate sample of
     quanitative data; a measure of statistical disperson (like std dev).
@@ -50,6 +52,40 @@ def calculate_median_ad(arr):
 
 def calculate_mean_ad(arr):
     return np.mean(np.abs(arr - np.mean(arr)))
+
+
+def calculate_spectral_centroid(mat):
+    """
+    mat -> an array of spectrums
+
+    A measure used in DSP to characterize a spectrum.
+
+    Indicates where the centre of mass of the spectrum is located.
+
+    Has a robust connection with the impression of brightness of a sound.
+    'Brightness' is usually an indication of the amount of high-frequency content in a sound.
+
+    Calculated as the weighted mean of frequencies present in the signal (determined using a Fourier transform)
+    with magnitudes as the weights.
+
+    'Weighted mean' is similar to an arithmetic mean except some data points contribute more than others.
+    If all weights are equal, then the weighted mean is the same as the arithmetic mean.
+    """
+    numer = np.sum(mat * range(mat.shape[1]), axis=1)
+    denom = np.sum(mat, axis=1)
+    return numer / denom
+
+
+def calculate_spectral_roll_off(mat):
+    pass
+
+
+def calculate_spectral_flatness_measure(mat):
+    pass
+
+
+def calculate_spectral_flux(mat):
+    pass
 
 
 ###############
@@ -97,8 +133,6 @@ def assignment2():
         fout.write("\n")
         fout.write("@DATA\n")
 
-        music_features = np.zeros((len(music_speech_data), 4))
-        speech_features = np.zeros((len(music_speech_data), 4))
         for fpath, label in music_speech_data:
             audio_array = _read_audio_file(fpath)
             rms = calculate_rms(audio_array)
@@ -134,7 +168,7 @@ def assignment3():
             buffer_features = []
             # split data into buffers of length 1024 with 50% overlap (hopsize of 512)
             # only include complete buffers. if buffer length < 1024, omit it
-            # should result in a (1920, 5) matrix per wav file
+            # should result in a (1290, 5) matrix per wav file
             for i in range(1024, len(audio_array), 512):
                 buffer = audio_array[i - 1024 : i]
                 rms = calculate_rms(buffer)
@@ -155,6 +189,33 @@ def assignment3():
             )
 
 
+def assignment4():
+    # a windowing function for smoothing values
+    # M represents the number of points in the output window
+    hamming_window = scipy.signal.windows.hamming(1024)
+
+    music_speech_data = _read_ground_truth_file()
+    fpath, label = music_speech_data[0]
+    audio_array = _read_audio_file(fpath)
+
+    dft_matrix = np.zeros((1290, 513))
+
+    j = 0
+    for i in range(1024, len(audio_array), 512):
+        buffer = audio_array[i - 1024 : i]
+        buffer *= hamming_window
+        # perform discrete fourier transform
+        buffer_dft = scipy.fftpack.fft(buffer)
+        buffer_dft = buffer_dft[:513]
+        buffer_dft = np.abs(buffer_dft)
+        dft_matrix[j] = buffer_dft
+        j += 1
+
+    # print(dft_matrix)
+    # print(dft_matrix.shape)
+    calculate_spectral_centroid(dft_matrix)
+
+
 if __name__ == "__main__":
     # start_time = time.time()
     # assignment1()
@@ -162,6 +223,9 @@ if __name__ == "__main__":
     # start_time = time.time()
     # assignment2()
     # print(f"Time taken for Assignment 2: {time.time() - start_time:0.2f}")
+    # start_time = time.time()
+    # assignment3()
+    # print(f"Time taken for Assignment 3: {time.time() - start_time:0.2f}")
     start_time = time.time()
-    assignment3()
-    print(f"Time taken for Assignment 3: {time.time() - start_time:0.2f}")
+    assignment4()
+    print(f"Time taken for Assignment 4: {time.time() - start_time:0.2f}")
