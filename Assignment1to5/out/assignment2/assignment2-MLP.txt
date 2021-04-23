@@ -1,0 +1,83 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.functions.MultilayerPerceptron -L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a
+Relation:     music_speech
+Instances:    128
+Attributes:   5
+              RMS
+              PAR
+              ZCR
+              MAD
+              class
+Test mode:    10-fold cross-validation
+
+=== Classifier model (full training set) ===
+
+Sigmoid Node 0
+    Inputs    Weights
+    Threshold    -5.497687053019673
+    Node 2    6.157033329450754
+    Node 3    9.749879338240602
+    Node 4    -10.931260589492837
+Sigmoid Node 1
+    Inputs    Weights
+    Threshold    5.497382034793446
+    Node 2    -6.156690517883649
+    Node 3    -9.749317488059171
+    Node 4    10.930613093694832
+Sigmoid Node 2
+    Inputs    Weights
+    Threshold    -1.5159076710909427
+    Attrib RMS    -10.451985436452896
+    Attrib PAR    -0.863384996409645
+    Attrib ZCR    -10.522650384891252
+    Attrib MAD    13.416245107846647
+Sigmoid Node 3
+    Inputs    Weights
+    Threshold    14.158145687095445
+    Attrib RMS    -8.236634016337034
+    Attrib PAR    11.756476006433118
+    Attrib ZCR    3.238538597508707
+    Attrib MAD    12.411401153456358
+Sigmoid Node 4
+    Inputs    Weights
+    Threshold    -0.8079551197002551
+    Attrib RMS    6.0592090344197835
+    Attrib PAR    8.40515760755292
+    Attrib ZCR    0.5264507717155729
+    Attrib MAD    -9.771483591918763
+Class music
+    Input
+    Node 0
+Class speech
+    Input
+    Node 1
+
+
+Time taken to build model: 0.11 seconds
+
+=== Stratified cross-validation ===
+=== Summary ===
+
+Correctly Classified Instances         116               90.625  %
+Incorrectly Classified Instances        12                9.375  %
+Kappa statistic                          0.8125
+Mean absolute error                      0.1241
+Root mean squared error                  0.2826
+Relative absolute error                 24.8158 %
+Root relative squared error             56.4852 %
+Total Number of Instances              128     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 0.938    0.125    0.882      0.938    0.909      0.814    0.953     0.946     music
+                 0.875    0.063    0.933      0.875    0.903      0.814    0.953     0.965     speech
+Weighted Avg.    0.906    0.094    0.908      0.906    0.906      0.814    0.953     0.956     
+
+=== Confusion Matrix ===
+
+  a  b   <-- classified as
+ 60  4 |  a = music
+  8 56 |  b = speech
+

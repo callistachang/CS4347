@@ -1,0 +1,85 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.functions.Logistic -R 1.0E-8 -M -1 -num-decimal-places 4
+Relation:     music_speech
+Instances:    128
+Attributes:   11
+              RMS_MEAN
+              PAR_MEAN
+              ZCR_MEAN
+              MAD_MEAN
+              MEAN_AD_MEAN
+              RMS_STD
+              PAR_STD
+              ZCR_STD
+              MAD_STD
+              MEAN_AD_STD
+              class
+Test mode:    evaluate on training data
+
+=== Classifier model (full training set) ===
+
+Logistic Regression with ridge parameter of 1.0E-8
+Coefficients...
+                          Class
+Variable                  music
+===============================
+RMS_MEAN            -17313.3682
+PAR_MEAN                21.5453
+ZCR_MEAN             -1049.9405
+MAD_MEAN             27497.0342
+MEAN_AD_MEAN            2027.08
+RMS_STD               3186.0206
+PAR_STD               -714.2678
+ZCR_STD               -3437.933
+MAD_STD             -17541.7644
+MEAN_AD_STD           6840.0041
+Intercept              707.5799
+
+
+Odds Ratios...
+                          Class
+Variable                  music
+===============================
+RMS_MEAN                      0
+PAR_MEAN        2275104875.3383
+ZCR_MEAN                      0
+MAD_MEAN               Infinity
+MEAN_AD_MEAN           Infinity
+RMS_STD                Infinity
+PAR_STD                       0
+ZCR_STD                       0
+MAD_STD                       0
+MEAN_AD_STD            Infinity
+
+
+Time taken to build model: 0.01 seconds
+
+=== Evaluation on training set ===
+
+Time taken to test model on training data: 0 seconds
+
+=== Summary ===
+
+Correctly Classified Instances         128              100      %
+Incorrectly Classified Instances         0                0      %
+Kappa statistic                          1     
+Mean absolute error                      0     
+Root mean squared error                  0.0001
+Relative absolute error                  0.0039 %
+Root relative squared error              0.0187 %
+Total Number of Instances              128     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 1.000    0.000    1.000      1.000    1.000      1.000    1.000     1.000     music
+                 1.000    0.000    1.000      1.000    1.000      1.000    1.000     1.000     speech
+Weighted Avg.    1.000    0.000    1.000      1.000    1.000      1.000    1.000     1.000     
+
+=== Confusion Matrix ===
+
+  a  b   <-- classified as
+ 64  0 |  a = music
+  0 64 |  b = speech
+

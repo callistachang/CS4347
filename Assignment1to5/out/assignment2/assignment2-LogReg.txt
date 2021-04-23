@@ -1,0 +1,64 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.functions.Logistic -R 1.0E-8 -M -1 -num-decimal-places 4
+Relation:     music_speech
+Instances:    128
+Attributes:   5
+              RMS
+              PAR
+              ZCR
+              MAD
+              class
+Test mode:    10-fold cross-validation
+
+=== Classifier model (full training set) ===
+
+Logistic Regression with ridge parameter of 1.0E-8
+Coefficients...
+                              Class
+Variable                      music
+===================================
+RMS                       -186.9959
+PAR                          0.1807
+ZCR                        -37.5839
+MAD                        430.9528
+Intercept                    1.2471
+
+
+Odds Ratios...
+                              Class
+Variable                      music
+===================================
+RMS                               0
+PAR                          1.1981
+ZCR                               0
+MAD          1.4468876083250228E187
+
+
+Time taken to build model: 0 seconds
+
+=== Stratified cross-validation ===
+=== Summary ===
+
+Correctly Classified Instances         113               88.2813 %
+Incorrectly Classified Instances        15               11.7188 %
+Kappa statistic                          0.7656
+Mean absolute error                      0.1798
+Root mean squared error                  0.3138
+Relative absolute error                 35.9485 %
+Root relative squared error             62.7236 %
+Total Number of Instances              128     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 0.875    0.109    0.889      0.875    0.882      0.766    0.936     0.931     music
+                 0.891    0.125    0.877      0.891    0.884      0.766    0.936     0.940     speech
+Weighted Avg.    0.883    0.117    0.883      0.883    0.883      0.766    0.936     0.935     
+
+=== Confusion Matrix ===
+
+  a  b   <-- classified as
+ 56  8 |  a = music
+  7 57 |  b = speech
+
